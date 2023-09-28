@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <time.h>
 
+int *copycount = NULL;
 // function to check if the word contains any duplicate letters
 bool check_duplicate(char *word)
 {
@@ -100,114 +101,98 @@ void print_words_collected(char **word_array, int length)
     }
 }
 
+bool guess_in_word(char *word, char guess)
+{
+    for (int i = 0; word[i] != '\0'; i++)
+    {
+        if (word[i] == guess)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Function for dividing the original array into subarrays based on the index of guesses letter
 char ***divide_array_on_guess(int counter, char **word_array, char guess, int length)
 {
-    //char **temp2 = (char **)malloc(counter * sizeof(char *));
     char ***temp = (char ***)malloc((length + 1) * sizeof(char **)); // Allocate memory for subarrays
-    const int len = length;
     if (temp == NULL)
     {
         perror("Memory allocation failed"); // checking if mem was allocated or not
         return NULL;
     }
-    for (int i = 0; i < length; i++){
+    for (int i = 0; i <= length; i++)
+    {
         temp[i] = (char **)malloc(counter * sizeof(char *));
-        if (temp[i] == NULL){
+        if (temp[i] == NULL)
+        {
             perror("Subarray memory allocation failed!");
             return NULL;
         }
     }
-    //int counters[len] = {0};
-    int *counters = (int *)(length * sizeof(int));
-    for (int i = 0; i < length; i++){
+    int *counters = (int *)malloc((length + 1) * sizeof(int));
+    for (int i = 0; i <= length; i++)
+    {
         counters[i] = 0;
         printf("%d", counters[i]);
     }
-        for (int i = 0; i < counter; i++){
-        printf("in loop\n");
-        for (int j = 0; j < strlen(word_array[i]); j++)
+
+    for (int i = 0; i < counter; i++)
+    {
+        // printf("in loop\n");
+        for (int j = 0; j < strlen(word_array[i]) && j <= length; j++)
         {
-            if (word_array[i][j] == guess){
+            if (word_array[i][j] == guess)
+            {
                 temp[j][counters[j]] = word_array[i];
                 counters[j] += 1;
-                break;
+                continue;
             }
         }
+        bool isGuessInWord = guess_in_word(word_array[i], guess);
+        if (!isGuessInWord)
+        {
+            // printf(guess_in_word(word_array[i], guess) ? "true" : "false");
+            temp[length][counters[length]] = word_array[i];
+            counters[length] += 1;
+            continue;
+        }
+    }
+    copycount = counters;
+    for (int i = 0; i <= length; i++)
+    {
+        printf("%d, ", counters[i]);
     }
 
-    // Initialize subarrays for words that contain the guessed letter at respective index
-    // for (int i = 0; i < length; i++)
-    // {
-    //     temp[i] = (char **)malloc(counter * sizeof(char *));
-    //     if (temp[i] == NULL)
-    //     {
-    //         perror("Subarray memory allocation failed!");
-    //         return NULL;
-    //     }
-    //     // copying words into subarrays based on the index of guess in each word
-    //     for (int j = 0; j < counter; j++)
-    //     {
-    //         if (strlen(word_array[j]) > i && word_array[j][i] == guess)
-    //         { // checking if guess exists in word
-    //             temp[i][j] = (char *)malloc((strlen(word_array[j]) + 1) * sizeof(char));
-    //             strcpy(temp[i][j], word_array[j]); // copying word in its respective array
-    //         }
-    //         else
-    //         {
-    //             temp[i][j] = NULL;
-    //         }
-    //     }
-    // }
-    // // Initialize the last subarray for words that do not contain the guessed letter
-    // temp[length] = (char **)malloc(counter * sizeof(char *));
-    // if (temp[length] == NULL)
-    // { // allocating memory for last subarray
-    //     perror("Subarray memory allocation failed!");
-    //     return NULL;
-    // }
-    // for (int j = 0; j < counter; j++)
-    // {
-    //     if (strchr(word_array[j], guess) == NULL)
-    //     { // checking if guess is not in word
-    //         temp[length][j] = (char *)malloc((strlen(word_array[j]) + 1) * sizeof(char));
-    //         strcpy(temp[length][j], word_array[j]); // copying no guess word to an extra subarray
-    //     }
-    //     else
-    //     {
-    //         temp[length][j] = NULL;
-    //     }
-    // }
     return temp;
 }
 
 // Function for printing Subarrays
-void print_subarrays(char ***subarrays, int length, int counter)
+void print_subarrays(char ***subarrays, int length)
 {
-    for (int i = 0; i < length; i++)
-    { // printing subarrays
+    printf("Printing subarrays in division function\n");
+    for (int i = 0; i <= length; i++)
+    {
         printf("\n===================================================== Subarray %d ===================================================== \n", i + 1);
-        for (int j = 0; j < counter; j++)
+        for (int j = 0; j < copycount[i]; j++)
         {
-            if (subarrays[i][j] != NULL)
-            { // checking if index is not null
-                printf("%s | ", subarrays[i][j]);
-                if ((j + 1 % 10) == 0)
-                { // printing new line after 10 words
-                    printf("\n");
-                }
+            printf("%s | ", subarrays[i][j]);
+            if ((j + 1 % 10) == 0)
+            {
+                printf("\n");
             }
         }
     }
 }
 
 // Function for dividing sub categoryu into further guess based sub arrays
-void subarray_printer(char **category, char guess, int length, int size)
+void subarray_printer(char **category, int size)
 {
-    printf("In sub array divider %s", *category[0]);
+    //printf("\nPrinting subarray %d\n", size);
     for (int i = 0; i < size; i++)
     {
-        printf("[%d] - %s | ", i, *category[i]);
+        printf("[%d] - %s | ", i, category[i]);
         if ((i + 1) % 10 == 0)
         {
             printf("\n");
@@ -215,76 +200,106 @@ void subarray_printer(char **category, char guess, int length, int size)
     }
 }
 
+
+bool check_guess_result(char *word, int length)
+{
+    for (int i = 1; i <= length; i++)
+    {
+        if (word[i] == '-')
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 // function to drive the game
 void Driver(int counter, char **word_array, int length, int guess)
 {
     char reveal;
     int category;
-again:
-    printf("\nGuess Character: ");
-    for (int i = 0; i < length; i++)
+    char ***divided = NULL;
+    char **subarray = NULL;
+    char *result = (char *)malloc(length * sizeof(char));
+    char *track = (char *)malloc(26 * sizeof(char));
+    int k = 0;
+    bool check = false;
+    for (int i = 1; i <= length; i++)
     {
-        printf("-- ");
+        result[i] = '-';
     }
-    printf("\n\nEnter your 1st guess ~ Player: ");
-    scanf(" %c", &reveal);
-    char ***divided = divide_array_on_guess(counter, word_array, reveal, length);
-    guess -= 1;
-    print_subarrays(divided, length + 1, counter); // printing original array divided into subarrays
-    printf("\n Enter Sub Array to select for word selection: ");
-    scanf("%d", &category);
-
-    if (category == length + 1)
+    for (guess; guess >= 0;)
     {
-        printf("Letter [%c] not in word\n guesses = %d", reveal, guess);
-        goto again;
-    }
-    else
-    {
-        for (int i = 0; i < length; i++)
+        if(check_guess_result(result, length)){
+            printf("Congratulations! You Won!");
+            break;
+        }
+        if (guess == 0)
         {
-            if (i + 1 == category)
+            printf("You Lost!");
+            break;
+        }
+        printf("\nWord: ");
+        for (int i = 1; i <= length; i++)
+        {
+            printf("%c ", result[i]);
+        }
+        printf("\nGuesses Left: %d", guess);
+        printf("\nLetters Guessed: ");
+        for (int i = 0; i < k; i++){
+            printf("%c, ", track[i]);
+        }again:
+        printf("\n\nEnter your guess: ");
+        scanf(" %c", &reveal);
+        track[k] = reveal;
+        k+=1;
+        if (reveal >= 'a' && reveal <= 'z')
+        {
+            if (guess == 10 || check == true)
             {
-                printf("%c ", reveal);
+                divided = divide_array_on_guess(counter, word_array, reveal, length);
+                check = false;
+            }
+            else if (guess < 10)
+            {
+                divided = divide_array_on_guess(copycount[category - 1], subarray, reveal, length);
+            }
+            for (int i = 0; i <= length; i++)
+            {
+                printf("%d, ", copycount[i]);
+            }
+            print_subarrays(divided, length);
+        select:
+            printf("\n Enter Sub Array to select for word selection: ");
+            scanf("%d", &category);
+            if (category > length + 1)
+            {
+                printf("Invalid Input - Category is from 1 to %d", length + 1);
+                goto select;
+            }
+            if (category == length + 1)
+            {
+                printf("Letter [%c] not in word\n guesses = %d", reveal, guess);
+                guess -= 1;
+                check = true;
             }
             else
             {
-                printf("-- ");
+                for (int i = 1; i <= length; i++)
+                {
+                    if (i == category)
+                    {
+                        result[category] = reveal;
+                    }
+                }
+                subarray = divided[category - 1];
+                subarray_printer(subarray, copycount[category - 1]);
+                guess -= 1;
             }
+        }else{
+            printf("Invalid Input - Enter a letter from a to z");
+            goto again;
         }
-        int size = 0, i= 0;
-        //size = sizeof(divided) ;
-        //size = len(divided[category]);
-        // while (divided[category][i] != NULL)
-        // {
-        //     //printf("in while\n");
-        //     size++;
-        //     i++;
-        // }
-        printf("\n size: %d\n", size);
-        char **subarray = divided[category];
-        // char **subarray = (char **)malloc((size + 1) * sizeof(char *));
-        for (int i = 0; subarray[i] != NULL; i++)
-        {
-            printf("---\nThis loo[] is running checker\n---");
-            //subarray[i] = strdup(divided[category][i]);
-            printf("%s", subarray[i]);
-        }
-        //subarray[size] = NULL;
-
-        for (int i = 0; i < size; i++)
-        {
-            printf("[%d] - %s | ", i, subarray[i]);
-            if ((i + 1) % 10 == 0)
-            {
-                printf("\n");
-            }
-        }
-        char next_guess;
-
-        printf("\nEnter next guess: ");
-        scanf(" %c", &next_guess);
-        subarray_printer(subarray, next_guess, length, size);
     }
 }
 
