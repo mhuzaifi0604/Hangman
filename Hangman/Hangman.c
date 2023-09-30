@@ -242,7 +242,7 @@ void Driver(int counter, char **word_array, int length, int guess)
         track[k] = reveal; // keeping track of the guessed letters
         k+=1;
         // Checking if letter guessed isan alphabet
-        if (reveal >= 'a' && reveal <= 'z')
+        if (reveal >= 'A' && reveal <= 'Z' || (reveal >= 'a' && reveal <= 'z'))
         {
             // if its the first guess than dividing the originally fetched word_array into subarrays based on the guessed letter
             if (guess == 10 || check == true)
@@ -288,7 +288,7 @@ void Driver(int counter, char **word_array, int length, int guess)
             }else
             {
                 for (int i = 0; i < length; i++){ // running loop to assign the guessed letter to the result array
-                    if (i+1 == category && divided[category - 1][0][i] == reveal) // checking if the guessed letter is present in the word in respective array
+                    if ((i+1 == category) && (divided[category - 1][0][i] == reveal)) // checking if the guessed letter is present in the word in respective array
                     {
                         result[category] = reveal;// assigning letter to its respective index
                         break;
