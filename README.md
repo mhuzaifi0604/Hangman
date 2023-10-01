@@ -17,3 +17,20 @@ gcc Hangman.c -o game
 
 ### Note
 <strong>To print all the functioning or say original word array and subarrays at each guess or iteration, uncomment the code commented and wrapped in '-' & its explaination.<strong>
+
+# Number Letter Mapper (Poosible Combo Checker)
+
+### How to Run
+* In read_dictionary File change the anme of dictionary file to either one in the zipped folder (UPPERCASE or newdict) or use your own. If you are using your own dictionary make sure each line contains only 1 word.
+
+```
+usage : ./object file <total number of numbers> total_num *[numbers]
+```
+```
+gcc Mapper.c -o ./map<br>
+./map 1 12 123
+```
+The above command will print all the possible combinations of words having 2 and 3 letters
+* Keep in mid that the output of the program totally depends on the worth of the device it is running on. 
+* It may malfunction sometime due to overwhelmingly large number of combinations that normal laptops cannot handle.
+* Therefore using too many argument like more than 2 or 3 or using large length arguments like length of 5 or 6 can take upto 24 hours of time to print the output due to that many permutations. Hence, use small arguments like the one in the example above.
